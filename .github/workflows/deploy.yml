@@ -38,5 +38,5 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ec2-user/ask_hub
-            docker compose down
-            docker compose up -d --build
+            docker-compose down
+            docker-compose up -d --build
