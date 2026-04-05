@@ -28,7 +28,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "build/libs/*.jar,docker-compose.yml,Dockerfile,.env"
-          target: "/root/ask_hub"
+          target: "/home/ec2-user/ask_hub"
 
       - name: Deploy on EC2
         uses: appleboy/ssh-action@v1.0.3
@@ -37,6 +37,6 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /root/ask_hub
+            cd /home/ec2-user/ask_hub
             docker compose down
             docker compose up -d --build
