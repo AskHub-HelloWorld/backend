@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: ${POSTGRES_CONTAINER}
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}           # DB 접속 ID
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}  # DB 접속 비밀번호 (바꾸셔도 됩니다)
+      POSTGRES_DB: ${POSTGRES_DB}       # 생성할 DB 이름
+    ports:
+      - "5432:5432"                  # 외부포트:내부포트
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data  # 데이터 영구 저장 설정
