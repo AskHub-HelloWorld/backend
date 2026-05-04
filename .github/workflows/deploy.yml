@@ -39,6 +39,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "docker-compose.yaml,Dockerfile,.dockerignore"
           target: "/home/ec2-user/ask_hub"
+          overwrite: true
 
       - name: Create .env on EC2
         uses: appleboy/ssh-action@v1.0.3
