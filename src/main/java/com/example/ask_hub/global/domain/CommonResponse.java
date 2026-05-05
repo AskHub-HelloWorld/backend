@@ -31,6 +31,10 @@ public class CommonResponse<T> {
         return new CommonResponse<>(Result.SUCCESS, "200", "요청이 성공했습니다.", data);
     }
 
+    public static CommonResponse<Void> ok() {
+        return new CommonResponse<>(Result.SUCCESS, "200", "요청이 성공했습니다.", null);
+    }
+
     public static <T> CommonResponse<T> fail(ErrorCode errorCode) {
         return new CommonResponse<>(Result.FAILURE, errorCode.getCode(), errorCode.getMessage(), null);
     }
