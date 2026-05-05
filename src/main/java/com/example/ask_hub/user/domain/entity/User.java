@@ -30,6 +30,9 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 10)
     private String name;
 
+    @Column(nullable = false, length = 30)
+    private String company;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private Position position;
@@ -44,10 +47,11 @@ public class User extends BaseEntity {
     private LocalDateTime deletedAt;
 
     @Builder
-    public User(String email, String password, String name, Position position, Integer year) {
+    public User(String email, String password, String name, String company, Position position, Integer year) {
         this.email = email;
         this.password = password;
         this.name = name;
+        this.company = company;
         this.position = position;
         this.year = year;
         this.point = 0;
