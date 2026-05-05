@@ -3,3 +3,5 @@ spring:
     url: jdbc:postgresql://localhost:5432/ask_hub
     username: admin
     password: admin
+jwt:
+  secret: localSecretKey1234567890localSecretKey1234567890
