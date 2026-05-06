@@ -104,4 +104,16 @@ public class AuthService {
         refreshTokenRepository.findByUser(user)
                 .ifPresent(refreshTokenRepository::delete);
     }
+
+    // 회원복구
+    public void restore(LoginRequest request) {
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new BusinessException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        user.restore();
+    }
 }
