@@ -26,7 +26,7 @@ public class AuthService {
     private final JwtProvider jwtProvider;
 
     // 회원가입
-    public void join(JoinRequest request) {
+    public void signup(JoinRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
@@ -35,6 +35,9 @@ public class AuthService {
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .name(request.name())
+                .company(request.company())
+                .position(request.position())
+                .joinedDate(request.joinedDate())
                 .build();
 
         userRepository.save(user);
@@ -47,6 +50,10 @@ public class AuthService {
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new BusinessException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        if (user.getDeletedAt() != null) {
+            throw new BusinessException(ErrorCode.SIGN_OUT_USER);
         }
 
         String accessToken = jwtProvider.generateAccessToken(user.getId());
@@ -103,5 +110,17 @@ public class AuthService {
     public void logout(User user) {
         refreshTokenRepository.findByUser(user)
                 .ifPresent(refreshTokenRepository::delete);
+    }
+
+    // 회원복구
+    public void restore(LoginRequest request) {
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new BusinessException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        user.restore();
     }
 }

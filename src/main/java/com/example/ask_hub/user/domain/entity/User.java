@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -24,18 +25,21 @@ public class User extends BaseEntity {
     @Column(nullable = false, unique = true, length = 30)
     private String email;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 100)
     private String password;
 
     @Column(nullable = false, length = 10)
     private String name;
 
+    @Column(nullable = false, length = 30)
+    private String company;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private Position position;
 
-    @Column
-    private Integer year; // 연차
+    @Column(nullable = false)
+    private LocalDate joinedDate; // 입사일자
 
     @Column
     private Integer point;
@@ -44,12 +48,21 @@ public class User extends BaseEntity {
     private LocalDateTime deletedAt;
 
     @Builder
-    public User(String email, String password, String name, Position position, Integer year) {
+    public User(String email, String password, String name, String company, Position position, LocalDate joinedDate) {
         this.email = email;
         this.password = password;
         this.name = name;
+        this.company = company;
         this.position = position;
-        this.year = year;
+        this.joinedDate = joinedDate;
         this.point = 0;
+    }
+
+    public void signout() {
+        deletedAt = LocalDateTime.now();
+    }
+
+    public void restore() {
+        deletedAt = null;
     }
 }

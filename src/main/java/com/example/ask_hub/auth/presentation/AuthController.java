@@ -15,20 +15,20 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/join")
+    @PostMapping("/signup")
     @Operation(summary = "회원가입")
-    public ResponseEntity<CommonResponse<Void>> join(
+    public ResponseEntity<CommonResponse<Void>> signup(
             @RequestBody
             @Valid
             JoinRequest request
     ) {
-        authService.join(request);
+        authService.signup(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(CommonResponse.ok());
@@ -54,7 +54,7 @@ public class AuthController {
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(CommonResponse.ok(authService.reissue(refreshToken.substring(7))));
+                .body(CommonResponse.ok(authService.reissue(refreshToken)));
     }
 
     @PostMapping("/logout")
@@ -63,6 +63,19 @@ public class AuthController {
             @AuthenticationPrincipal User user
     ) {
         authService.logout(user);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(CommonResponse.ok());
+    }
+
+    @PatchMapping("/restore")
+    @Operation(summary = "회원 복구")
+    public ResponseEntity<CommonResponse<Void>> restore(
+            @RequestBody
+            @Valid
+            LoginRequest request
+    ) {
+        authService.restore(request);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(CommonResponse.ok());
