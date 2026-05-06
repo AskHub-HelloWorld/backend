@@ -16,6 +16,7 @@ public enum ErrorCode {
     EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "A001", "이미 존재하는 이메일입니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "A002", "잘못된 비밀번호입니다."),
     INVALID_TOKEN(HttpStatus.BAD_REQUEST, "A003", "유효하지 않은 토큰 정보입니다."),
+    SIGN_OUT_USER(HttpStatus.NOT_FOUND, "A004", "탈퇴한 회원입니다. 회원 복구를 진행하거나 재가입하십시오."),
 
     // User, Uxx1,
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "회원을 찾을 수 없습니다.");
