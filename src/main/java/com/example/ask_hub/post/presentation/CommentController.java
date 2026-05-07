@@ -16,15 +16,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/comments")
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
 
-    @GetMapping
+    @GetMapping("/api/posts/{postId}/comments")
     public ResponseEntity<CommonResponse<SliceResponse<CommentGetResponse>>> getList(
-            @RequestParam Long postId,
+            @PathVariable Long postId,
             @AuthenticationPrincipal User user,
             @PageableDefault Pageable pageable
     ) {
@@ -33,7 +32,7 @@ public class CommentController {
                 .body(CommonResponse.ok(commentService.getList(postId, user.getId(), pageable)));
     }
 
-    @PostMapping
+    @PostMapping("/api/posts/comments")
     public ResponseEntity<CommonResponse<Long>> create(
             @RequestBody @Valid CommentCreateRequest request,
             @AuthenticationPrincipal User user
