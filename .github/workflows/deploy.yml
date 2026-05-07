@@ -21,25 +21,14 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew bootJar
 
-      - name: Copy jar to EC2
+      - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "build/libs/*.jar"
-          target: "/home/ec2-user/ask_hub/"
-          strip_components: 2
-
-      - name: Copy config files to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "docker-compose.yaml,Dockerfile,.dockerignore"
+          source: "build/libs/*.jar,docker-compose.yaml,Dockerfile,.dockerignore,ai-server/"
           target: "/home/ec2-user/ask_hub"
-          overwrite: true
 
       - name: Create .env on EC2
         uses: appleboy/ssh-action@v1.0.3
@@ -54,6 +43,10 @@ jobs:
             POSTGRES_USER=${{ secrets.POSTGRES_USER }}
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
+            SERVICE_AUTH_SECRET=${{ secrets.SERVICE_AUTH_SECRET }}
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            S3_BUCKET=${{ secrets.S3_BUCKET }}
             EOF
 
       - name: Deploy on EC2
