@@ -13,10 +13,14 @@ public class SliceResponse<T> {
     private final int size;
     private final boolean hasNext;
 
-    public SliceResponse(Slice<T> slice) {
+    private SliceResponse(Slice<T> slice) {
         this.content = slice.getContent();
         this.page = slice.getNumber();
         this.size = slice.getSize();
         this.hasNext = slice.hasNext();
+    }
+
+    public static <T> SliceResponse<T> from(Slice<T> slice) {
+        return new SliceResponse<>(slice);
     }
 }
