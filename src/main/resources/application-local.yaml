@@ -5,3 +5,7 @@ spring:
     password: admin
 jwt:
   secret: localSecretKey1234567890localSecretKey1234567890
+ai:
+  server:
+    url: http://localhost:8000
+    secret: localServiceAuthSecret

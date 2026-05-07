@@ -10,8 +10,19 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
+      - AI_SERVER_URL=http://ai:8000
+      - SERVICE_AUTH_SECRET=${SERVICE_AUTH_SECRET}
     depends_on:
       - postgres
+      - ai
+  ai:
+    build:
+      context: ./ai-server
+      dockerfile: Dockerfile
+    ports:
+      - '8000:8000'
+    environment:
+      - SERVICE_AUTH_SECRET=${SERVICE_AUTH_SECRET}
 
   postgres:
     image: 'postgres:16'
