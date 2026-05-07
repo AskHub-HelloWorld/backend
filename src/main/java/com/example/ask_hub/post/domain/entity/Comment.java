@@ -31,14 +31,18 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "parent_id")
     private Comment parent;
 
-    @Column(nullable = false, length = 200)
-    private String context;
+    @Column(nullable = false, length = 200, name = "content")
+    private String content;
+
+    @Column(nullable = false)
+    private Boolean isAnonymous;
 
     @Builder
-    public Comment(Post post, User user, Comment parent, String context) {
+    public Comment(Post post, User user, Comment parent, String content, Boolean isAnonymous) {
         this.post = post;
         this.user = user;
         this.parent = parent;
-        this.context = context;
+        this.content = content;
+        this.isAnonymous = isAnonymous;
     }
 }
