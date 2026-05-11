@@ -11,6 +11,10 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - AI_SERVER_URL=http://ai:8000
       - SERVICE_AUTH_SECRET=${SERVICE_AUTH_SECRET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET=${S3_BUCKET}
+      - S3_REGION=ap-southeast-2
     depends_on:
       - postgres
       - ai
@@ -30,7 +34,7 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - S3_BUCKET=${S3_BUCKET}
-      - S3_REGION=ap-northeast-2
+      - S3_REGION=ap-southeast-2
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     depends_on:
       - postgres
