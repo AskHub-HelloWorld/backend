@@ -1,7 +1,6 @@
-package com.example.ask_hub.convention.domain.entity;
+package com.example.ask_hub.team.domain.entity;
 
 import com.example.ask_hub.global.domain.BaseEntity;
-import com.example.ask_hub.team.domain.entity.Team;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -19,16 +18,20 @@ public class Convention extends BaseEntity {
     @Column(name = "convention_id")
     private Long id;
 
+    @Column(name = "name", nullable = false, length = 30)
+    private String name;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id", nullable = false)
     private Team team;
 
-    @Column(name = "file_url", nullable = false, length = 30)
+    @Column(name = "file_url", nullable = false, length = 200)
     private String fileUrl;
 
     @Builder
-    public Convention(Team team, String fileUrl) {
+    public Convention(Team team, String name, String fileUrl) {
         this.team = team;
         this.fileUrl = fileUrl;
+        this.name = name;
     }
 }
