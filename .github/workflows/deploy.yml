@@ -39,6 +39,10 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            cd /home/ec2-user/ask_hub
+            rm -f *.jar
+            docker-compose down
+            docker-compose up -d --build
             cat > /home/ec2-user/ask_hub/.env << EOF
             POSTGRES_CONTAINER=${{ secrets.POSTGRES_CONTAINER }}
             POSTGRES_DB=${{ secrets.POSTGRES_DB }}
