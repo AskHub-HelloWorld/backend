@@ -20,14 +20,21 @@ public enum ErrorCode {
 
     // User, Uxx1,
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "회원을 찾을 수 없습니다."),
+    NOT_ALLOWED_USER(HttpStatus.METHOD_NOT_ALLOWED, "P003", "접근이 허용되지 않은 사용자입니다."),
 
     // Post, Pxx1
     DUPLICATED_TITLE(HttpStatus.BAD_REQUEST, "P001", "이미 존재하는 게시글 제목입니다."),
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "P002", "게시글을 찾을 수 없습니다."),
-    NOT_ALLOWED_USER(HttpStatus.METHOD_NOT_ALLOWED, "P003", "접근이 허용되지 않은 사용자입니다."),
 
     // Comment, Cxx1
-    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "C001", "답글을 찾을 수 없습니다.");
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "C001", "답글을 찾을 수 없습니다."),
+
+    // Team, Txx1
+    TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "T001", "팀(채팅방)을 찾을 수 없습니다."),
+
+    // Session, Sxx1
+    SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "S001", "세션을 찾을 수 없습니다."),
+    ANSWER_FAIL(HttpStatus.BAD_REQUEST, "S002", "응답이 실패했습니다.");
 
 
 
