@@ -1,7 +1,7 @@
-package com.example.ask_hub.chat.domain.entity;
+package com.example.ask_hub.team.domain.entity;
 
-import com.example.ask_hub.chat.domain.enums.Role;
-import com.example.ask_hub.team.domain.entity.Session;
+import com.example.ask_hub.global.domain.BaseEntity;
+import com.example.ask_hub.team.domain.enums.Role;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Table(name = "message")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Message {
+public class Message extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,20 +26,20 @@ public class Message {
     private Session session;
 
     @Column(nullable = false, columnDefinition = "text")
-    private String context;
+    private String content;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(nullable = false, length = 50)
+    private String uuid;
 
     @Builder
-    public Message(Session session, String context, Role role) {
+    public Message(Session session, String content, Role role, String uuid) {
         this.session = session;
-        this.context = context;
+        this.content = content;
         this.role = role;
-        this.createdAt = LocalDateTime.now();
+        this.uuid = uuid;
     }
 }
