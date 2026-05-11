@@ -1,4 +1,4 @@
-package com.example.ask_hub.convention.domain.entity;
+package com.example.ask_hub.team.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

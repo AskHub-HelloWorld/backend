@@ -6,6 +6,7 @@ import com.example.ask_hub.post.application.CommentService;
 import com.example.ask_hub.post.domain.dto.request.CommentCreateRequest;
 import com.example.ask_hub.post.domain.dto.response.CommentGetResponse;
 import com.example.ask_hub.user.domain.entity.User;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping("/api/posts/{postId}/comments")
+    @Operation(summary = "게시글 답글 목록 조회")
     public ResponseEntity<CommonResponse<SliceResponse<CommentGetResponse>>> getList(
             @PathVariable Long postId,
             @AuthenticationPrincipal User user,
@@ -33,6 +35,7 @@ public class CommentController {
     }
 
     @PostMapping("/api/posts/comments")
+    @Operation(summary = "게시글 답글 생성")
     public ResponseEntity<CommonResponse<Long>> create(
             @RequestBody @Valid CommentCreateRequest request,
             @AuthenticationPrincipal User user

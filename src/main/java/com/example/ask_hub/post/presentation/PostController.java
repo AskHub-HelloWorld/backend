@@ -10,6 +10,7 @@ import com.example.ask_hub.post.domain.dto.response.PostGetResponse;
 import com.example.ask_hub.post.domain.dto.response.PostSearchResponse;
 import com.example.ask_hub.user.domain.entity.User;
 import com.example.ask_hub.user.domain.enums.Position;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,7 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
+    @Operation(summary = "게시글 생성")
     public ResponseEntity<CommonResponse<Long>> create(
             @RequestBody
             @Valid
@@ -40,6 +42,7 @@ public class PostController {
     }
 
     @GetMapping
+    @Operation(summary = "전체 게시글 목록 조회")
     public ResponseEntity<CommonResponse<SliceResponse<PostGetResponse>>> getList(
             @AuthenticationPrincipal User user,
             @PageableDefault Pageable pageable
@@ -50,6 +53,7 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
+    @Operation(summary = "게시글 상세 조회")
     public ResponseEntity<CommonResponse<PostDetailResponse>> get(
             @PathVariable Long postId
     ){
@@ -59,6 +63,7 @@ public class PostController {
     }
 
     @PatchMapping("/{postId}")
+    @Operation(summary = "게시글 답변 채택")
     public ResponseEntity<CommonResponse<Long>> select(
             @PathVariable Long postId,
             @RequestParam Long commentId,
@@ -70,6 +75,7 @@ public class PostController {
     }
 
     @GetMapping("/search")
+    @Operation(summary = "게시글 검색 목록 조회")
     public ResponseEntity<CommonResponse<SliceResponse<PostSearchResponse>>> search(
             @RequestParam String keyword,
             @AuthenticationPrincipal User user,
@@ -81,6 +87,7 @@ public class PostController {
     }
 
     @GetMapping("/category")
+    @Operation(summary = "개발직군별 게시글 목록 조회(현재는 게시글 당 한 개의 카테고리, 그래서 단일 카테고리 별 조회)")
     public ResponseEntity<CommonResponse<SliceResponse<PostCategoryResponse>>> category(
             @RequestParam Position category, // 일단은 단일로
             @AuthenticationPrincipal User user,
