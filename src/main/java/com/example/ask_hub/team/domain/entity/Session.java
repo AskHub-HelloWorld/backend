@@ -18,6 +18,9 @@ public class Session { // User_Team Entity
     @Column(name = "session_id")
     private Long id;
 
+    @Column(nullable = false, length = 200)
+    private String uuid;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -27,8 +30,9 @@ public class Session { // User_Team Entity
     private Team team;
 
     @Builder
-    public Session(User user, Team team) {
+    public Session(User user, Team team, String uuid) {
         this.user = user;
         this.team = team;
+        this.uuid = uuid;
     }
 }
