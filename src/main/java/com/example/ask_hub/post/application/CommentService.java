@@ -28,6 +28,9 @@ public class CommentService {
 
     public SliceResponse<CommentGetResponse> getList(Long postId, Long userId, Pageable pageable) {
 
+        postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+
         Slice<Comment> slice = commentRepository.findAllByPostId(postId, pageable);
 
         Slice<CommentGetResponse> responses = slice.map(
