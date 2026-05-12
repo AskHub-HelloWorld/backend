@@ -18,6 +18,8 @@ services:
     depends_on:
       - postgres
       - ai
+    networks:
+      - askhub
 
   ai:
     build:
@@ -38,9 +40,11 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     depends_on:
       - postgres
+    networks:
+      - askhub
 
   postgres:
-    image: 'postgres:16'
+    image: 'pgvector/pgvector:pg16'
     container_name: ${POSTGRES_CONTAINER}
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
@@ -48,8 +52,15 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     ports:
       - '5432:5432'
+    networks:
+      - askhub
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+networks:
+  askhub:
+    name: ${ASKHUB_DOCKER_NETWORK}
+    driver: bridge
 
 volumes:
   postgres_data:
