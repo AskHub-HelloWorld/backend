@@ -25,19 +25,38 @@ services:
     build:
       context: ./ai-server
       dockerfile: Dockerfile
+      target: dev
     ports:
       - '8000:8000'
     environment:
-      - POSTGRES_HOST=postgres
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - DB_SCHEMA=ai
       - SERVICE_AUTH_SECRET=${SERVICE_AUTH_SECRET}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - S3_BUCKET=${S3_BUCKET}
       - S3_REGION=ap-southeast-2
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - AWS_REGION=ap-southeast-2
+    depends_on:
+      - postgres
+    networks:
+      - askhub
+
+  ai-worker:
+    build:
+      context: ./ai-server
+      dockerfile: Dockerfile
+      target: dev
+    command: askhub-worker
+    environment:
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - DB_SCHEMA=ai
+      - SERVICE_AUTH_SECRET=${SERVICE_AUTH_SECRET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET=${S3_BUCKET}
+      - S3_REGION=ap-southeast-2
+      - AWS_REGION=ap-southeast-2
     depends_on:
       - postgres
     networks:
