@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<CommonResponse<Void>> handleCustomException(BusinessException e) {
         ErrorCode errorCode = e.getErrorCode();
-        log.warn("CustomException: {}", errorCode.getMessage());
+        log.warn("BusinessException: {}", errorCode.getMessage());
         return ResponseEntity
                 .status(errorCode.getStatus())
                 .body(CommonResponse.fail(errorCode));

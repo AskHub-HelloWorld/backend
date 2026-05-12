@@ -13,9 +13,6 @@ public record PostCreateRequest(
         @NotBlank(message = "제목은 필수입니다.")
         String title,
 
-        @NotEmpty(message = "개발 직군을 1개 이상 선택해주십시오.")
-        List<Position> positionList,
-
         @NotNull
         Boolean isAnonymous,
 
@@ -25,7 +22,7 @@ public record PostCreateRequest(
         @NotNull(message = "게시글 채택 시 포인트를 명시해야합니다.")
         Integer point,
 
-        @NotNull(message = "개발 직군을 명시해야합니다.")
+        @NotEmpty(message = "개발 직군을 명시해야합니다.")
         Position position
 
 ) {
