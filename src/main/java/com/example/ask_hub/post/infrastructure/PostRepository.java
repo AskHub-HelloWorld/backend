@@ -1,5 +1,6 @@
 package com.example.ask_hub.post.infrastructure;
 
+import com.example.ask_hub.post.domain.entity.Comment;
 import com.example.ask_hub.post.domain.entity.Post;
 import com.example.ask_hub.user.domain.enums.Position;
 import org.springframework.data.domain.Pageable;
@@ -20,4 +21,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Slice<Post> findByTitleContaining(String keyword, Pageable pageable);
 
     Slice<Post> findAllByPosition(Position category, Pageable pageable);
+
+    Slice<Post> findAllByUserId(Long userId, Pageable pageable);
+
+    Slice<Post> findAllByCommentIsNull(Pageable pageable);
 }
