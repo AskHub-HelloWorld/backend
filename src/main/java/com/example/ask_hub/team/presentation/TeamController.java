@@ -4,6 +4,8 @@ import com.example.ask_hub.global.domain.CommonResponse;
 import com.example.ask_hub.team.application.SessionService;
 import com.example.ask_hub.team.application.TeamService;
 import com.example.ask_hub.team.domain.dto.request.SessionCreateRequest;
+import com.example.ask_hub.team.domain.dto.response.TeamCreateResponse;
+import com.example.ask_hub.team.domain.dto.response.TeamDownloadResponse;
 import com.example.ask_hub.team.domain.dto.response.TeamGetResponse;
 import com.example.ask_hub.user.domain.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +30,7 @@ public class TeamController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "새 팀 생성")
-    public ResponseEntity<CommonResponse<Long>> create(
+    public ResponseEntity<CommonResponse<TeamCreateResponse>> create(
             @RequestParam @NotNull(message = "팀 이름은 필수입니다.")
             String name,
 
@@ -77,6 +79,30 @@ public class TeamController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(CommonResponse.ok(teamService.addConvention(file, teamId, user.getId())));
+    }
+
+    @GetMapping("/conventions/{conventionId}")
+    @Operation(summary = "컨벤션 파일 다운로드")
+    public ResponseEntity<CommonResponse<TeamDownloadResponse>> download(
+            @PathVariable Long conventionId
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(CommonResponse.ok(teamService.download(conventionId)));
+    }
+
+    @DeleteMapping("/{teamId}/conventions/{conventionId}")
+    @Operation(summary = "컨벤션 파일 삭제(방장만)")
+    public ResponseEntity<CommonResponse<Void>> deleteConvention(
+            @PathVariable Long teamId,
+            @PathVariable Long conventionId,
+            @AuthenticationPrincipal User user
+    ) {
+        teamService.deleteConvention(teamId, conventionId, user.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(CommonResponse.ok());
     }
 
 }
