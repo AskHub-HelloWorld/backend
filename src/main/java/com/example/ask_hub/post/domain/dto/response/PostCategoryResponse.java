@@ -6,6 +6,8 @@ import com.example.ask_hub.user.domain.enums.Position;
 import java.time.LocalDateTime;
 
 public record PostCategoryResponse(
+        Long postId,
+
         String title,
         String content,
         Position position,
@@ -21,6 +23,7 @@ public record PostCategoryResponse(
 
     public static PostCategoryResponse from(Post post, Long userId, Integer count) {
         return new PostCategoryResponse(
+                post.getId(),
                 post.getTitle(),
                 post.getContent(),
                 post.getPosition(),
