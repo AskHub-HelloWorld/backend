@@ -46,7 +46,7 @@ public class PostController {
     public ResponseEntity<CommonResponse<SliceResponse<PostGetResponse>>> getList(
             @AuthenticationPrincipal User user,
             @PageableDefault Pageable pageable
-    ){
+    ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(CommonResponse.ok(postService.getList(user.getId(), pageable)));
@@ -56,7 +56,7 @@ public class PostController {
     @Operation(summary = "게시글 상세 조회")
     public ResponseEntity<CommonResponse<PostDetailResponse>> get(
             @PathVariable Long postId
-    ){
+    ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(CommonResponse.ok(postService.getDetail(postId)));
@@ -64,19 +64,21 @@ public class PostController {
 
     @PatchMapping("/{postId}")
     @Operation(summary = "게시글 답변 채택")
-    public ResponseEntity<CommonResponse<Long>> select(
+    public ResponseEntity<CommonResponse<Void>> select(
             @PathVariable Long postId,
             @RequestParam Long commentId,
             @AuthenticationPrincipal User user
-    ){
+    ) {
+        postService.select(postId, commentId, user.getId());
+
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(CommonResponse.ok(postService.select(postId, commentId, user.getId())));
+                .body(CommonResponse.ok());
     }
 
     @GetMapping("/search")
     @Operation(summary = "게시글 검색 목록 조회")
-    public ResponseEntity<CommonResponse<SliceResponse<PostSearchResponse>>> search(
+    public ResponseEntity<CommonResponse<SliceResponse<PostGetResponse>>> search(
             @RequestParam String keyword,
             @AuthenticationPrincipal User user,
             @PageableDefault Pageable pageable
@@ -88,14 +90,35 @@ public class PostController {
 
     @GetMapping("/category")
     @Operation(summary = "개발직군별 게시글 목록 조회(현재는 게시글 당 한 개의 카테고리, 그래서 단일 카테고리 별 조회)")
-    public ResponseEntity<CommonResponse<SliceResponse<PostCategoryResponse>>> category(
+    public ResponseEntity<CommonResponse<SliceResponse<PostGetResponse>>> category(
             @RequestParam Position category, // 일단은 단일로
             @AuthenticationPrincipal User user,
             @PageableDefault Pageable pageable
-    ){
+    ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(CommonResponse.ok(postService.category(category, user.getId(), pageable)));
     }
 
+    @GetMapping("/my")
+    @Operation(summary = "내가 작성한 게시글 목록 조회")
+    public ResponseEntity<CommonResponse<SliceResponse<PostGetResponse>>> my(
+            @AuthenticationPrincipal User user,
+            @PageableDefault Pageable pageable
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(CommonResponse.ok(postService.my(user.getId(), pageable)));
+    }
+
+    @GetMapping("/unresolved")
+    @Operation(summary = "미채택 게시글 목록 조회")
+    public ResponseEntity<CommonResponse<SliceResponse<PostGetResponse>>> unresolved(
+            @AuthenticationPrincipal User user,
+            @PageableDefault Pageable pageable
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(CommonResponse.ok(postService.unresolved(user.getId(), pageable)));
+    }
 }

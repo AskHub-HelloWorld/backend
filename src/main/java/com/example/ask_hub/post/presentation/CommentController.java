@@ -45,4 +45,15 @@ public class CommentController {
                 .body(CommonResponse.ok(commentService.create(request, user.getId())));
     }
 
+    @GetMapping("/api/posts/comments/my")
+    @Operation(summary = "내가 작성한 답글 목록 조회")
+    public ResponseEntity<CommonResponse<SliceResponse<CommentGetResponse>>> my(
+            @AuthenticationPrincipal User user,
+            @PageableDefault Pageable pageable
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(CommonResponse.ok(commentService.my(user.getId(), pageable)));
+    }
+
 }

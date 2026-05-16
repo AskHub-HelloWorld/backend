@@ -60,10 +60,10 @@ public class PostService {
 
     public SliceResponse<PostGetResponse> getList(Long userId, Pageable pageable) {
 
-        Slice<Post> slice = postRepository.findAll(pageable);
+        Slice<Post> slice = postRepository.findAll(pageable); // order by는 pageable에
 
         Slice<PostGetResponse> responses = slice.map(
-                post -> PostGetResponse.from(post, userId, commentRepository.countByPostId(post.getId()))
+                post -> PostGetResponse.from(post, post.getUser() ,userId, commentRepository.countByPostId(post.getId()))
         );
 
         return SliceResponse.from(responses);
@@ -95,27 +95,54 @@ public class PostService {
         return post.getId();
     }
 
-    public SliceResponse<PostSearchResponse> search(String keyword, Long userId, Pageable pageable) {
+    public SliceResponse<PostGetResponse> search(String keyword, Long userId, Pageable pageable) {
 
         Slice<Post> slice = postRepository.findByTitleContaining(keyword, pageable);
 
-        Slice<PostSearchResponse> responses = slice.map(
-                post -> PostSearchResponse.from(post, userId, commentRepository.countByPostId(post.getId()))
+        Slice<PostGetResponse> responses = slice.map(
+                post -> PostGetResponse.from(post, post.getUser(), userId, commentRepository.countByPostId(post.getId()))
         );
 
         return SliceResponse.from(responses);
     }
 
-    public SliceResponse<PostCategoryResponse> category(Position category, Long userId, Pageable pageable) {
+    public SliceResponse<PostGetResponse> category(Position category, Long userId, Pageable pageable) {
 
         Slice<Post> slice = postRepository.findAllByPosition(category, pageable);
 
-        Slice<PostCategoryResponse> responses = slice.map(
-                post -> PostCategoryResponse.from(post, userId, commentRepository.countByPostId(post.getId()))
+        Slice<PostGetResponse> responses = slice.map(
+                post -> PostGetResponse.from(post, post.getUser(), userId, commentRepository.countByPostId(post.getId()))
         );
 
         return SliceResponse.from(responses);
     }
 
 
+    public SliceResponse<PostGetResponse> my(Long userId, Pageable pageable) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Slice<Post> slice = postRepository.findAllByUserId(user.getId(), pageable);
+
+        Slice<PostGetResponse> responses = slice.map(
+                post -> PostGetResponse.from(post, post.getUser(), userId, commentRepository.countByPostId(post.getId()))
+        );
+
+        return SliceResponse.from(responses);
+    }
+
+    public SliceResponse<PostGetResponse> unresolved(Long userId, Pageable pageable) {
+
+        userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Slice<Post> slice = postRepository.findAllByCommentIsNull(pageable);
+
+        Slice<PostGetResponse> responses = slice.map(
+                post -> PostGetResponse.from(post, post.getUser(), userId, commentRepository.countByPostId(post.getId()))
+        );
+
+        return SliceResponse.from(responses);
+    }
 }

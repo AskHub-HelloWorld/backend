@@ -22,7 +22,7 @@ public class Message extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_team_id", nullable = false)
+    @JoinColumn(name = "session_id", nullable = false)
     private Session session;
 
     @Column(nullable = false, columnDefinition = "text")
