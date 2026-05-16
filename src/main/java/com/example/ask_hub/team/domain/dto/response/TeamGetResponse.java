@@ -6,25 +6,16 @@ import java.util.List;
 
 public record TeamGetResponse(
         String name,
-        List<ConventionGetResponse> conventions,
+        List<Long> conventionIds,
         List<String> userNameList,
         String captainName
 ) {
-    public static TeamGetResponse from(Team team, List<ConventionGetResponse> conventions, List<String> userNameList, String captainName) {
+    public static TeamGetResponse from(Team team, List<Long> conventionIds, List<String> userNameList, String captainName) {
         return new TeamGetResponse(
                 team.getName(),
-                conventions,
+                conventionIds,
                 userNameList,
                 captainName
         );
-    }
-
-    public record ConventionGetResponse(
-            Long conventionId,
-            String url
-    ){
-        public static ConventionGetResponse from(Long conventionId, String url) {
-            return new ConventionGetResponse(conventionId, url);
-        }
     }
 }

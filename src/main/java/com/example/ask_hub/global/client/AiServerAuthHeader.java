@@ -1,6 +1,7 @@
 package com.example.ask_hub.global.client;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class AiServerAuthHeader {
 
     @Value("${ai.server.secret}")
@@ -33,7 +35,18 @@ public class AiServerAuthHeader {
                 teamIdStr
         );
 
+        log.info("=== HMAC 서명 디버깅 ===");
+        log.info("timestamp: {}", timestamp);
+        log.info("method: {}", method.toUpperCase());
+        log.info("path: {}", path);
+        log.info("query: {}", query);
+        log.info("userId: {}", userId);
+        log.info("teamId: {}", teamIdStr);
+        log.info("payload: {}", payload);
+        log.info("secret: {}", secret);
+
         String signature = generateHmac(payload);
+        log.info("signature: {}", signature);
 
         Map<String, String> headers = new HashMap<>();
         headers.put("x-askhub-user-id", String.valueOf(userId));

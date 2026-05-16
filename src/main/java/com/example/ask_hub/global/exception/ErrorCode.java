@@ -34,7 +34,12 @@ public enum ErrorCode {
 
     // Session, Sxx1
     SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "S001", "세션을 찾을 수 없습니다."),
-    ANSWER_FAIL(HttpStatus.BAD_REQUEST, "S002", "응답이 실패했습니다.");
+    ANSWER_FAIL(HttpStatus.BAD_REQUEST, "S002", "응답이 실패했습니다."),
+    SESSION_UNMATCH(HttpStatus.BAD_REQUEST, "S003", "세션이 팀과 일치하지 않습니다."),
+
+    // Convention, Cxx1
+    CONVENTION_NOT_FOUND(HttpStatus.NOT_FOUND, "C001", "컨벤션 파일을 찾을 수 없습니다."),
+    CONVENTION_NOT_LINKED(HttpStatus.BAD_REQUEST, "C002", "컨벤션 파일이 채팅방에 등록돼있지 않습니다.");
 
 
 

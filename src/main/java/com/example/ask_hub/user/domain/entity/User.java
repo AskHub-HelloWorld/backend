@@ -65,4 +65,12 @@ public class User extends BaseEntity {
     public void restore() {
         deletedAt = null;
     }
+
+    public void modifyInfo(String name, String company, Position position, String email, LocalDate joinedDate) {
+        this.name = name;
+        this.company = company;
+        this.position = position;
+        this.email = email;
+        this.joinedDate = joinedDate;
+    }
 }

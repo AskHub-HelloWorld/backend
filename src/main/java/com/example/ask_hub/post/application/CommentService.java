@@ -60,4 +60,18 @@ public class CommentService {
         commentRepository.save(comment);
         return comment.getId();
     }
+
+    public SliceResponse<CommentGetResponse> my(Long userId, Pageable pageable) {
+
+        userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Slice<Comment> slice = commentRepository.findAllByUserId(userId, pageable);
+
+        Slice<CommentGetResponse> responses = slice.map(
+                comment -> CommentGetResponse.from(comment, userId)
+        );
+
+        return SliceResponse.from(responses);
+    }
 }

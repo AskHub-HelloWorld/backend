@@ -71,11 +71,13 @@ public class SessionService {
 
         Slice<SessionGetResponse> responses = slice.map(
                 session -> SessionGetResponse.from(
+                        session.getTeam().getId(),
+                        session.getId(),
                         session.getTeam().getName(),
                         messageRepository.findTopBySessionIdOrderByCreatedAtDesc(session.getId())
                                 .map(Message::getContent)
                                 .orElse(null),
-                        session.getUser().getName()));
+                        session.getTeam().getUser().getName()));
 
         return SliceResponse.from(responses);
     }
@@ -91,9 +93,13 @@ public class SessionService {
         Session session = sessionRepository.findById(request.sessionId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.SESSION_NOT_FOUND));
 
+        if (!session.getTeam().getId().equals(request.teamId())) {
+            throw new BusinessException(ErrorCode.SESSION_UNMATCH);
+        }
+
         SendMessageResponse response = aiServerClient.sendMessage(
                 userId,
-                request.sessionId(),
+                request.teamId(),
                 session.getUuid(),
                 request.message());
 
@@ -138,5 +144,39 @@ public class SessionService {
 
         return SliceResponse.from(responses);
 
+    }
+
+    public void delete(Long sessionId, Long userId) {
+
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.SESSION_NOT_FOUND));
+
+        if (!session.getUser().getId().equals(userId)) {
+            throw new BusinessException(ErrorCode.NOT_ALLOWED_USER);
+        }
+
+        messageRepository.deleteAllBySessionId(sessionId);
+
+        sessionRepository.delete(session);
+    }
+
+    public SliceResponse<SessionGetResponse> search(String keyword, Long userId, Pageable pageable) {
+
+        userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Slice<Session> slice = sessionRepository.findByUserIdAndTeamName(userId, keyword, pageable);
+
+        Slice<SessionGetResponse> responses = slice.map(
+                session -> SessionGetResponse.from(
+                        session.getTeam().getId(),
+                        session.getId(),
+                        session.getTeam().getName(),
+                        messageRepository.findTopBySessionIdOrderByCreatedAtDesc(session.getId())
+                                .map(Message::getContent)
+                                .orElse(null),
+                        session.getTeam().getUser().getName()));
+
+        return SliceResponse.from(responses);
     }
 }

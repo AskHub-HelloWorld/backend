@@ -22,7 +22,7 @@ public record PostCreateRequest(
         @NotNull(message = "게시글 채택 시 포인트를 명시해야합니다.")
         Integer point,
 
-        @NotEmpty(message = "개발 직군을 명시해야합니다.")
+        @NotNull(message = "개발 직군을 명시해야합니다.")
         Position position
 
 ) {

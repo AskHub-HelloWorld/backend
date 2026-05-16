@@ -57,5 +57,28 @@ public class SessionController {
                 .body(CommonResponse.ok(sessionService.getMessages(sessionId, user.getId())));
     }
 
+    @DeleteMapping("/{sessionId}")
+    @Operation(summary = "세션 삭제")
+    public ResponseEntity<CommonResponse<Void>> delete(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long sessionId
+    ){
+        sessionService.delete(sessionId, user.getId());
 
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(CommonResponse.ok());
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "세션 검색")
+    public ResponseEntity<CommonResponse<SliceResponse<SessionGetResponse>>> search(
+            @RequestParam String keyword,
+            @AuthenticationPrincipal User user,
+            @PageableDefault Pageable pageable
+    ){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(CommonResponse.ok(sessionService.search(keyword, user.getId(), pageable)));
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.ask_hub.team.domain.entity;
 
+import com.example.ask_hub.global.domain.BaseEntity;
 import com.example.ask_hub.user.domain.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "sessions")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Session { // User_Team Entity
+public class Session extends BaseEntity { // User_Team Entity
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
