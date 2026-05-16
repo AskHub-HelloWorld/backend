@@ -7,5 +7,6 @@ public enum Position {
     DESIGNER,
     FULLSTACK,
     SECURITY,
+    UNKNOWN,
     OTHER
 }
