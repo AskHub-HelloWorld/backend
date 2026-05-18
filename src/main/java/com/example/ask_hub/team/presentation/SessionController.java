@@ -9,6 +9,7 @@ import com.example.ask_hub.team.domain.dto.response.MessageGetResponse;
 import com.example.ask_hub.team.domain.dto.response.SessionGetResponse;
 import com.example.ask_hub.user.domain.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -16,6 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/sessions")
@@ -38,12 +42,13 @@ public class SessionController {
     @PostMapping("/messages")
     @Operation(summary = "메세지 보내기")
     public ResponseEntity<CommonResponse<MessageCreateResponse>> sendMessage(
-            @RequestBody MessageCreateRequest request,
+            @RequestPart List<MultipartFile> files,
+            @RequestPart @Valid MessageCreateRequest request,
             @AuthenticationPrincipal User user
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(CommonResponse.ok(sessionService.sendMessage(request, user.getId())));
+                .body(CommonResponse.ok(sessionService.sendMessage(files, request, user.getId())));
     }
 
     @GetMapping("/{sessionId}/messages")
@@ -62,7 +67,7 @@ public class SessionController {
     public ResponseEntity<CommonResponse<Void>> delete(
             @AuthenticationPrincipal User user,
             @PathVariable Long sessionId
-    ){
+    ) {
         sessionService.delete(sessionId, user.getId());
 
         return ResponseEntity
@@ -76,7 +81,7 @@ public class SessionController {
             @RequestParam String keyword,
             @AuthenticationPrincipal User user,
             @PageableDefault Pageable pageable
-    ){
+    ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(CommonResponse.ok(sessionService.search(keyword, user.getId(), pageable)));
