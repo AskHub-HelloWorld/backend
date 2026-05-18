@@ -5,6 +5,7 @@ import com.example.ask_hub.auth.domain.dto.request.JoinRequest;
 import com.example.ask_hub.auth.domain.dto.request.LoginRequest;
 import com.example.ask_hub.auth.domain.dto.response.TokenResponse;
 import com.example.ask_hub.global.domain.CommonResponse;
+import com.example.ask_hub.user.domain.dto.request.UserEmailRequest;
 import com.example.ask_hub.user.domain.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -79,5 +80,17 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(CommonResponse.ok());
+    }
+
+    @PostMapping("/email")
+    @Operation(summary = "이메일 중복 확인")
+    public ResponseEntity<CommonResponse<Void>> email(
+            @RequestBody @Valid UserEmailRequest request
+    ) {
+        authService.email(request);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(CommonResponse.ok(null));
     }
 }

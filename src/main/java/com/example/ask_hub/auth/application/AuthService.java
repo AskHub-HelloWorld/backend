@@ -6,6 +6,7 @@ import com.example.ask_hub.auth.domain.dto.response.TokenResponse;
 import com.example.ask_hub.global.config.JwtProvider;
 import com.example.ask_hub.global.exception.BusinessException;
 import com.example.ask_hub.global.exception.ErrorCode;
+import com.example.ask_hub.user.domain.dto.request.UserEmailRequest;
 import com.example.ask_hub.user.domain.entity.RefreshToken;
 import com.example.ask_hub.user.domain.entity.User;
 import com.example.ask_hub.user.infrastructure.RefreshTokenRepository;
@@ -122,5 +123,12 @@ public class AuthService {
         }
 
         user.restore();
+    }
+
+    public void email(UserEmailRequest request) {
+
+        if (userRepository.existsByEmail(request.email())){
+            throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
+        }
     }
 }
