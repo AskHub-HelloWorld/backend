@@ -25,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -82,7 +83,7 @@ public class SessionService {
         return SliceResponse.from(responses);
     }
 
-    public MessageCreateResponse sendMessage(MessageCreateRequest request, Long userId) {
+    public MessageCreateResponse sendMessage(List<MultipartFile> files, MessageCreateRequest request, Long userId) {
 
         userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
