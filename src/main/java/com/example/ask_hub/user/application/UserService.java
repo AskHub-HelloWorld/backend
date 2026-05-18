@@ -4,7 +4,6 @@ import com.example.ask_hub.global.exception.BusinessException;
 import com.example.ask_hub.global.exception.ErrorCode;
 import com.example.ask_hub.post.infrastructure.CommentRepository;
 import com.example.ask_hub.post.infrastructure.PostRepository;
-import com.example.ask_hub.user.domain.dto.request.UserEmailRequest;
 import com.example.ask_hub.user.domain.dto.request.UserModifyRequest;
 import com.example.ask_hub.user.domain.dto.response.MyPageResponse;
 import com.example.ask_hub.user.domain.dto.response.UserSearchResponse;
@@ -13,7 +12,6 @@ import com.example.ask_hub.user.domain.entity.User;
 import com.example.ask_hub.user.infrastructure.PointHistoryRepository;
 import com.example.ask_hub.user.infrastructure.RefreshTokenRepository;
 import com.example.ask_hub.user.infrastructure.UserRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,13 +73,6 @@ public class UserService {
                 .ifPresent(refreshTokenRepository::delete);
 
         user.signout();
-    }
-
-    public void email(UserEmailRequest request) {
-
-        if (userRepository.existsByEmail(request.email())){
-            throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
-        }
     }
 
     public UserSearchResponse search(String company) {

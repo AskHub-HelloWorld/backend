@@ -2,7 +2,6 @@ package com.example.ask_hub.user.presentation;
 
 import com.example.ask_hub.global.domain.CommonResponse;
 import com.example.ask_hub.user.application.UserService;
-import com.example.ask_hub.user.domain.dto.request.UserEmailRequest;
 import com.example.ask_hub.user.domain.dto.request.UserModifyRequest;
 import com.example.ask_hub.user.domain.dto.response.MyPageResponse;
 import com.example.ask_hub.user.domain.dto.response.UserSearchResponse;
@@ -10,7 +9,6 @@ import com.example.ask_hub.user.domain.dto.response.UserSummaryResponse;
 import com.example.ask_hub.user.domain.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,18 +38,6 @@ public class UserController {
             @AuthenticationPrincipal User user
     ) {
         userService.signout(user.getId());
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(CommonResponse.ok(null));
-    }
-
-    @PostMapping("/email")
-    @Operation(summary = "이메일 중복 확인")
-    public ResponseEntity<CommonResponse<Void>> email(
-            @RequestBody UserEmailRequest request
-    ) {
-        userService.email(request);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
