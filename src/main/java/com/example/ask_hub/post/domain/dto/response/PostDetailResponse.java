@@ -44,8 +44,8 @@ public record PostDetailResponse(
             }
 
             return new ResolvedComment(
-                    comment.getUser().getName(),
-                    comment.getUser().getPosition(),
+                    comment.getIsAnonymous() ? null : comment.getUser().getName(),
+                    comment.getIsAnonymous() ? null : comment.getUser().getPosition(),
                     comment.getCreatedAt(),
                     comment.getContent()
             );
