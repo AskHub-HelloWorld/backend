@@ -1,5 +1,6 @@
 package com.example.ask_hub.team.application;
 
+import com.example.ask_hub.team.domain.dto.request.ConventionGithubRequest;
 import com.example.ask_hub.team.domain.dto.response.TeamCreateResponse;
 import com.example.ask_hub.team.domain.dto.response.TeamDownloadResponse;
 import com.example.ask_hub.team.domain.entity.Convention;
@@ -48,15 +49,16 @@ public class TeamService {
         teamRepository.save(team);
 
         for (MultipartFile file : multipartFileList) {
-            String url = s3Service.upload(file);
+            String fileId = aiServerClient.uploadFile(userId, team.getId(), null, file, "rag_source");
+            String sourceId = aiServerClient.registerSource(userId, team.getId(), fileId, file.getOriginalFilename());
 
             conventionRepository.save(Convention.builder()
-                    .fileUrl(url)
                     .name(file.getOriginalFilename())
                     .team(team)
+                    .fileUrl(s3Service.upload(file)) // upload
+                    .sourceId(sourceId)
                     .build());
         }
-
 
         Long sessionId = sessionRepository.save(Session.builder()
                 .user(captain)
@@ -64,20 +66,21 @@ public class TeamService {
                 .uuid(aiServerClient.createSession(captain.getId(), team.getId(), team.getName()).getSessionId())
                 .build()).getId();
 
+        if (userIds != null) {
+            for (Long id : userIds) {
+                User user = userRepository.findById(id)
+                        .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        for (Long id : userIds){
-            User user = userRepository.findById(id)
-                    .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+                if (captain.getId().equals(user.getId())) {
+                    continue;
+                }
 
-            if (captain.getId().equals(user.getId())){
-                continue;
+                sessionRepository.save(Session.builder()
+                        .user(user)
+                        .team(team)
+                        .uuid(aiServerClient.createSession(user.getId(), team.getId(), team.getName()).getSessionId())
+                        .build());
             }
-
-            sessionRepository.save(Session.builder()
-                    .user(user)
-                    .team(team)
-                    .uuid(aiServerClient.createSession(user.getId(), team.getId(), team.getName()).getSessionId())
-                    .build());
         }
 
         return new TeamCreateResponse(team.getId(), sessionId);
@@ -104,7 +107,7 @@ public class TeamService {
         return TeamGetResponse.from(team, conventionIds, userNameList, team.getUser().getName());
     }
 
-    public Long addConvention(MultipartFile file, Long teamId, Long userId) {
+    public void addConvention(List<MultipartFile> files, Long teamId, Long userId) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
@@ -115,25 +118,41 @@ public class TeamService {
             throw new BusinessException(ErrorCode.NOT_ALLOWED_USER);
         }
 
-        List<Session> sessionList = sessionRepository.findAllByTeamId(teamId);
+        for (MultipartFile file : files) {
+            String fileId = aiServerClient.uploadFile(userId, teamId, null, file, "rag_source");
+            String sourceId = aiServerClient.registerSource(userId, teamId, fileId, file.getOriginalFilename());
 
-        String sourceId;
-        for (Session session : sessionList) {
-            sourceId = aiServerClient.uploadFile(
-                    session.getUser().getId(),
-                    teamId,
-                    session.getUuid(),
-                    file
-            );
+            conventionRepository.save(Convention.builder()
+                    .name(file.getOriginalFilename())
+                    .team(team)
+                    .fileUrl(s3Service.upload(file)) // upload
+                    .sourceId(sourceId)
+                    .build());
         }
 
-        Convention convention = conventionRepository.save(Convention.builder()
-                .name(file.getOriginalFilename())
+    }
+
+    public void addConvention(ConventionGithubRequest request, Long teamId, Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
+
+        if (!team.getUser().equals(user)) {
+            throw new BusinessException(ErrorCode.NOT_ALLOWED_USER);
+        }
+
+        String sourceId = aiServerClient.registerSource(userId, teamId, request.name(), request.githubUrl(), request.branch());
+
+        conventionRepository.save(Convention.builder()
+                .name(request.name())
                 .team(team)
-                .fileUrl(s3Service.upload(file))
+                .fileUrl(null)
+                .sourceId(sourceId)
                 .build());
 
-        return convention.getId();
     }
 
     public TeamDownloadResponse download(Long conventionId) {
@@ -154,7 +173,6 @@ public class TeamService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        List<Session> sessionList = sessionRepository.findAllByTeamId(teamId);
 
         if (!team.getUser().equals(user)) {
             throw new BusinessException(ErrorCode.NOT_ALLOWED_USER);
@@ -164,11 +182,13 @@ public class TeamService {
             throw new BusinessException(ErrorCode.CONVENTION_NOT_LINKED);
         }
 
-        s3Service.delete(convention.getFileUrl());
+        System.out.println("컨벤션 소스 아이디: " + convention.getSourceId());
 
-        for (Session session : sessionList) {
-            aiServerClient.deleteFile(session.getUser().getId(), teamId, convention.getSourceId());
+        if (convention.getFileUrl() != null) {
+            s3Service.delete(convention.getFileUrl());
         }
+
+        aiServerClient.deleteSource(userId, teamId, convention.getSourceId());
 
         conventionRepository.delete(convention);
     }

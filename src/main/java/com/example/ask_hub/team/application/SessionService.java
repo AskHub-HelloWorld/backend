@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -98,13 +99,33 @@ public class SessionService {
             throw new BusinessException(ErrorCode.SESSION_UNMATCH);
         }
 
-        SendMessageResponse response = aiServerClient.sendMessage(
-                userId,
-                request.teamId(),
-                session.getUuid(),
-                request.message());
+        SendMessageResponse response;
 
-        if (response.getAnswerable() == null) {
+        if (files != null && !files.isEmpty()) {
+            List<String> fileIds = new ArrayList<>();
+
+            for (MultipartFile file : files) {
+                fileIds.add(aiServerClient.uploadFile(userId, request.teamId(), null, file, "chat_attachment"));
+            }
+
+            response = aiServerClient.sendMessage(
+                    userId,
+                    request.teamId(),
+                    session.getUuid(),
+                    request.message().isBlank() ? "올려준 파일들 설명해줘" : request.message() ,
+                    fileIds
+            );
+        } else {
+            response = aiServerClient.sendMessage(
+                    userId,
+                    request.teamId(),
+                    session.getUuid(),
+                    request.message(),
+                    null
+            );
+        }
+
+        if (response.getAnswerable() == null ) {
             throw new BusinessException(ErrorCode.ANSWER_FAIL);
         }
 
@@ -137,7 +158,7 @@ public class SessionService {
             throw new BusinessException(ErrorCode.NOT_ALLOWED_USER);
         }
 
-        Slice<Message> slice = messageRepository.findAllBySessionIdOrderByCreatedAtDesc(sessionId);
+        Slice<Message> slice = messageRepository.findAllBySessionIdOrderByCreatedAt(sessionId);
 
         Slice<MessageGetResponse> responses = slice.map(
                 message -> MessageGetResponse.from(message.getId(), message.getContent())

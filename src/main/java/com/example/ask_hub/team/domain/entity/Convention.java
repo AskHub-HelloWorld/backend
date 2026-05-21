@@ -28,7 +28,7 @@ public class Convention extends BaseEntity {
     @Column(name = "source_id", length = 200)
     private String sourceId;
 
-    @Column(name = "file_url", nullable = false, length = 200)
+    @Column(name = "file_url" , length = 250)
     private String fileUrl;
 
     @Builder
