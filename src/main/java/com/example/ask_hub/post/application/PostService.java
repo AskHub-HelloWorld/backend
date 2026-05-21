@@ -4,10 +4,8 @@ import com.example.ask_hub.global.domain.SliceResponse;
 import com.example.ask_hub.global.exception.BusinessException;
 import com.example.ask_hub.global.exception.ErrorCode;
 import com.example.ask_hub.post.domain.dto.request.PostCreateRequest;
-import com.example.ask_hub.post.domain.dto.response.PostCategoryResponse;
 import com.example.ask_hub.post.domain.dto.response.PostDetailResponse;
 import com.example.ask_hub.post.domain.dto.response.PostGetResponse;
-import com.example.ask_hub.post.domain.dto.response.PostSearchResponse;
 import com.example.ask_hub.post.domain.entity.Comment;
 import com.example.ask_hub.post.domain.entity.Post;
 import com.example.ask_hub.post.infrastructure.CommentRepository;
@@ -77,7 +75,7 @@ public class PostService {
         return PostDetailResponse.from(post, commentRepository.countByPostId(post.getId()));
     }
 
-    public Long select(Long postId, Long commentId, Long userId) {
+    public void select(Long postId, Long commentId, Long userId) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
@@ -92,7 +90,6 @@ public class PostService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_NOT_FOUND));
 
         post.select(comment);
-        return post.getId();
     }
 
     public SliceResponse<PostGetResponse> search(String keyword, Long userId, Pageable pageable) {

@@ -60,5 +60,6 @@ public class Post extends BaseEntity {
 
     public void select(Comment comment) {
         this.comment = comment;
+        this.isResolved = true;
     }
 }

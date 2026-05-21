@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface MessageRepository extends JpaRepository<Message, Long> {
     Optional<Message> findTopBySessionIdOrderByCreatedAtDesc(Long sessionId);
 
-    Slice<Message> findAllBySessionIdOrderByCreatedAtDesc(Long sessionId);
-
     void deleteAllBySessionId(Long sessionId);
+
+    Slice<Message> findAllBySessionIdOrderByCreatedAt(Long sessionId);
 }

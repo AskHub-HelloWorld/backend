@@ -15,6 +15,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -42,9 +44,7 @@ public class AiServerClient {
         InputStream is = conn.getResponseCode() >= 400
                 ? conn.getErrorStream()
                 : conn.getInputStream();
-        String response = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-        log.info("AI 서버 응답: {}", response);
-        return response;
+        return new String(is.readAllBytes(), StandardCharsets.UTF_8);
     }
 
     public CreateSessionResponse createSession(Long userId, Long teamId, String title) {
@@ -67,19 +67,43 @@ public class AiServerClient {
         }
     }
 
-    public SendMessageResponse sendMessage(Long userId, Long teamId, String sessionId, String message) {
+    public SendMessageResponse sendMessage(
+            Long userId,
+            Long teamId,
+            String sessionId,
+            String message,
+            List<String> fileIds
+    ) {
         String path = "/v1/chat/sessions/" + sessionId + "/messages";
         Map<String, String> headers = authHeader.generate("POST", path, userId, teamId);
 
         try {
             HttpURLConnection conn = openConnection("POST", path, headers);
-            String body = objectMapper.writeValueAsString(Map.of("message", message));
+
+            if ((message == null || message.isBlank())
+                    && fileIds != null
+                    && !fileIds.isEmpty()) {
+
+                message = "첨부한 파일을 분석해주세요.";
+            }
+
+            Map<String, Object> bodyMap = new HashMap<>();
+            bodyMap.put("message", message);
+
+            if (fileIds != null && !fileIds.isEmpty()) {
+                bodyMap.put("file_ids", fileIds);
+            }
+
+            String body = objectMapper.writeValueAsString(bodyMap);
 
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(body.getBytes(StandardCharsets.UTF_8));
             }
 
-            return objectMapper.readValue(readResponse(conn), SendMessageResponse.class);
+            return objectMapper.readValue(
+                    readResponse(conn),
+                    SendMessageResponse.class
+            );
 
         } catch (Exception e) {
             log.error("메시지 전송 실패: {}", e.getMessage(), e);
@@ -87,71 +111,42 @@ public class AiServerClient {
         }
     }
 
-    public String uploadFile(Long userId, Long teamId, String sessionId, MultipartFile file) {
+    public String uploadFile(Long userId, Long teamId, String sessionId, MultipartFile file, String purpose) {
         String path = "/v1/files/upload";
         Map<String, String> headers = authHeader.generate("POST", path, userId, teamId);
 
         try {
             String boundary = "----Boundary" + System.currentTimeMillis();
-
             URL url = new URL(aiServerUrl + path);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
-
-            conn.setRequestProperty(
-                    "Content-Type",
-                    "multipart/form-data; boundary=" + boundary
-            );
-
+            conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
             headers.forEach(conn::setRequestProperty);
 
             try (OutputStream os = conn.getOutputStream()) {
-
-                // file
                 os.write(("--" + boundary + "\r\n").getBytes());
-                os.write((
-                        "Content-Disposition: form-data; name=\"file\"; filename=\"" +
-                                file.getOriginalFilename() +
-                                "\"\r\n"
-                ).getBytes());
-
-                os.write((
-                        "Content-Type: " + file.getContentType() + "\r\n\r\n"
-                ).getBytes());
-
+                os.write(("Content-Disposition: form-data; name=\"file\"; filename=\"" + file.getOriginalFilename() + "\"\r\n").getBytes());
+                os.write(("Content-Type: " + file.getContentType() + "\r\n\r\n").getBytes());
                 os.write(file.getBytes());
                 os.write("\r\n".getBytes());
 
-                // purpose
                 os.write(("--" + boundary + "\r\n").getBytes());
-                os.write((
-                        "Content-Disposition: form-data; name=\"purpose\"\r\n\r\n"
-                ).getBytes());
+                os.write("Content-Disposition: form-data; name=\"purpose\"\r\n\r\n".getBytes());
+                os.write((purpose + "\r\n").getBytes());
 
-                os.write("chat_attachment\r\n".getBytes());
-
-                // session_id
-                os.write(("--" + boundary + "\r\n").getBytes());
-                os.write((
-                        "Content-Disposition: form-data; name=\"session_id\"\r\n\r\n"
-                ).getBytes());
-
-                os.write((sessionId + "\r\n").getBytes());
+                if (sessionId != null) {
+                    os.write(("--" + boundary + "\r\n").getBytes());
+                    os.write("Content-Disposition: form-data; name=\"session_id\"\r\n\r\n".getBytes());
+                    os.write((sessionId + "\r\n").getBytes());
+                }
 
                 os.write(("--" + boundary + "--\r\n").getBytes());
             }
 
             String response = readResponse(conn);
-
-            JsonNode jsonNode = objectMapper.readTree(response);
-
-            String fileId = jsonNode.get("id").asText();
-
-            log.info("업로드된 fileId: {}", fileId);
-
-            return fileId;
+            JsonNode root = objectMapper.readTree(response);
+            return root.get("id").asText();
 
         } catch (Exception e) {
             log.error("파일 업로드 실패: {}", e.getMessage(), e);
@@ -160,29 +155,102 @@ public class AiServerClient {
     }
 
 
-    public void deleteFile(Long userId, Long teamId, String sourceId) {
-        String path = "/v1/files/" + sourceId;
+
+    public String registerSource(Long userId, Long teamId, String name, String repoUrl, String defaultBranch) {
+        String path = "/v1/sources";
+        Map<String, String> headers = authHeader.generate("POST", path, userId, teamId);
+
+        try {
+            HttpURLConnection conn = openConnection("POST", path, headers);
+
+            Map<String, Object> bodyMap = new HashMap<>();
+            bodyMap.put("source_type", "repository");
+            bodyMap.put("name", name);
+            bodyMap.put("repo_url", repoUrl);
+            bodyMap.put("default_branch", defaultBranch);
+
+            String body = objectMapper.writeValueAsString(bodyMap);
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(body.getBytes(StandardCharsets.UTF_8));
+            }
+
+            String response = readResponse(conn);
+            return objectMapper.readTree(response).get("source_id").asText();
+
+        } catch (Exception e) {
+            log.error("RAG 소스 등록 실패: {}", e.getMessage(), e);
+            throw new RuntimeException("RAG 소스 등록 실패: " + e.getMessage(), e);
+        }
+    }
+
+    public void deleteSource(Long userId, Long teamId, String sourceId) {
+        String path = "/v1/sources/" + sourceId;
         Map<String, String> headers = authHeader.generate("DELETE", path, userId, teamId);
 
         try {
             URL url = new URL(aiServerUrl + path);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
             conn.setRequestMethod("DELETE");
             conn.setRequestProperty("Content-Type", "application/json");
             headers.forEach(conn::setRequestProperty);
 
             int responseCode = conn.getResponseCode();
 
-            log.info("파일 삭제 응답 코드: {}", responseCode);
-
             if (responseCode >= 400) {
-                throw new RuntimeException(readResponse(conn));
+                InputStream errorStream = conn.getErrorStream();
+                String errorMessage = errorStream != null
+                        ? new String(errorStream.readAllBytes(), StandardCharsets.UTF_8)
+                        : "Unknown error";
+                log.error("RAG 소스 삭제 실패: {}", errorMessage);
+                throw new RuntimeException("RAG 소스 삭제 실패: " + errorMessage);
             }
 
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
-            log.error("파일 삭제 실패: {}", e.getMessage(), e);
-            throw new RuntimeException("파일 삭제 실패: " + e.getMessage(), e);
+            log.error("RAG 소스 삭제 실패: {}", e.getMessage(), e);
+            throw new RuntimeException("RAG 소스 삭제 실패: " + e.getMessage(), e);
+        }
+    }
+
+    public String registerSource(
+            Long userId,
+            Long teamId,
+            String fileId,
+            String name
+    ) {
+        String path = "/v1/sources";
+        Map<String, String> headers =
+                authHeader.generate("POST", path, userId, teamId);
+
+        try {
+            HttpURLConnection conn =
+                    openConnection("POST", path, headers);
+
+            Map<String, Object> bodyMap = new HashMap<>();
+            bodyMap.put("source_type", "document");
+            bodyMap.put("name", name);
+            bodyMap.put("file_id", fileId);
+
+            String body = objectMapper.writeValueAsString(bodyMap);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(body.getBytes(StandardCharsets.UTF_8));
+            }
+
+            String response = readResponse(conn);
+
+
+            return objectMapper.readTree(response)
+                    .get("source_id")
+                    .asText();
+
+        } catch (Exception e) {
+            log.error("RAG 소스 등록 실패: {}", e.getMessage(), e);
+            throw new RuntimeException(
+                    "RAG 소스 등록 실패: " + e.getMessage(),
+                    e
+            );
         }
     }
 }
