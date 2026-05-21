@@ -3,6 +3,7 @@ package com.example.ask_hub.team.presentation;
 import com.example.ask_hub.global.domain.CommonResponse;
 import com.example.ask_hub.team.application.SessionService;
 import com.example.ask_hub.team.application.TeamService;
+import com.example.ask_hub.team.domain.dto.request.ConventionGithubRequest;
 import com.example.ask_hub.team.domain.dto.request.SessionCreateRequest;
 import com.example.ask_hub.team.domain.dto.response.TeamCreateResponse;
 import com.example.ask_hub.team.domain.dto.response.TeamDownloadResponse;
@@ -34,7 +35,7 @@ public class TeamController {
             @RequestParam @NotNull(message = "팀 이름은 필수입니다.")
             String name,
 
-            @RequestParam
+            @RequestParam(required = false)
             List<Long> userIds,
 
             @RequestParam(value = "multipartFileList", required = false)
@@ -71,14 +72,30 @@ public class TeamController {
 
     @PostMapping(path = "/{teamId}/conventions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "컨벤션 파일 추가(방장만)")
-    public ResponseEntity<CommonResponse<Long>> addConvention(
-            @RequestPart MultipartFile file,
+    public ResponseEntity<CommonResponse<Void>> addConvention(
+            @RequestParam List<MultipartFile> files,
             @PathVariable Long teamId,
             @AuthenticationPrincipal User user
     ){
+        teamService.addConvention(files, teamId, user.getId());
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(CommonResponse.ok(teamService.addConvention(file, teamId, user.getId())));
+                .body(CommonResponse.ok());
+    }
+
+    @PostMapping(path = "/{teamId}/conventions/github", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "컨벤션 파일 추가(방장만) - github repository")
+    public ResponseEntity<CommonResponse<Void>> addConvention(
+            @RequestBody ConventionGithubRequest request,
+            @PathVariable Long teamId,
+            @AuthenticationPrincipal User user
+    ){
+        teamService.addConvention(request, teamId, user.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonResponse.ok());
     }
 
     @GetMapping("/conventions/{conventionId}")

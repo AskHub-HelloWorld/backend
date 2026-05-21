@@ -9,11 +9,13 @@ import com.example.ask_hub.team.domain.dto.response.MessageGetResponse;
 import com.example.ask_hub.team.domain.dto.response.SessionGetResponse;
 import com.example.ask_hub.user.domain.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/sessions")
 @RequiredArgsConstructor
+@Slf4j
 public class SessionController {
 
     private final SessionService sessionService;
@@ -39,13 +42,21 @@ public class SessionController {
                 .body(CommonResponse.ok(sessionService.get(user.getId(), pageable)));
     }
 
-    @PostMapping("/messages")
+    @PostMapping(value = "/messages", consumes = MediaType.MULTIPART_FORM_DATA_VALUE,  produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "메세지 보내기")
     public ResponseEntity<CommonResponse<MessageCreateResponse>> sendMessage(
-            @RequestPart List<MultipartFile> files,
-            @RequestPart @Valid MessageCreateRequest request,
+            @RequestParam (required = false) List<MultipartFile> files,
+
+            @RequestParam @NotNull Long teamId,
+
+            @RequestParam @NotNull Long sessionId,
+
+            @RequestParam @NotNull String message,
+
             @AuthenticationPrincipal User user
     ) {
+        MessageCreateRequest request = new MessageCreateRequest(sessionId, teamId, message);
+
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(CommonResponse.ok(sessionService.sendMessage(files, request, user.getId())));
