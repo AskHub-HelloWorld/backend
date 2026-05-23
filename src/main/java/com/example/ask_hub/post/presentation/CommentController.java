@@ -7,6 +7,7 @@ import com.example.ask_hub.post.domain.dto.request.CommentCreateRequest;
 import com.example.ask_hub.post.domain.dto.response.CommentGetResponse;
 import com.example.ask_hub.user.domain.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "답글 도메인")
 public class CommentController {
 
     private final CommentService commentService;
