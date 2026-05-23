@@ -48,16 +48,20 @@ public class TeamService {
                 .build();
         teamRepository.save(team);
 
-        for (MultipartFile file : multipartFileList) {
-            String fileId = aiServerClient.uploadFile(userId, team.getId(), null, file, "rag_source");
-            String sourceId = aiServerClient.registerSource(userId, team.getId(), fileId, file.getOriginalFilename());
 
-            conventionRepository.save(Convention.builder()
-                    .name(file.getOriginalFilename())
-                    .team(team)
-                    .fileUrl(s3Service.upload(file)) // upload
-                    .sourceId(sourceId)
-                    .build());
+
+        if (multipartFileList != null) {
+            for (MultipartFile file : multipartFileList) {
+                String fileId = aiServerClient.uploadFile(userId, team.getId(), null, file, "rag_source");
+                String sourceId = aiServerClient.registerSource(userId, team.getId(), fileId, file.getOriginalFilename());
+
+                conventionRepository.save(Convention.builder()
+                        .name(file.getOriginalFilename())
+                        .team(team)
+                        .fileUrl(s3Service.upload(file)) // upload
+                        .sourceId(sourceId)
+                        .build());
+            }
         }
 
         Long sessionId = sessionRepository.save(Session.builder()
