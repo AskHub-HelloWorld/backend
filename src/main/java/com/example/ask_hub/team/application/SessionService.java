@@ -143,7 +143,7 @@ public class SessionService {
                 .role(Role.AI)
                 .build());
 
-        return MessageCreateResponse.from(requestMessage.getId(), responesMessage.getId());
+        return MessageCreateResponse.from(requestMessage, responesMessage);
     }
 
     public SliceResponse<MessageGetResponse> getMessages(Long sessionId, Long userId) {
