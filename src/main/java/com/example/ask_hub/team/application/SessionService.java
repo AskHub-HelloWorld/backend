@@ -161,7 +161,7 @@ public class SessionService {
         Slice<Message> slice = messageRepository.findAllBySessionIdOrderByCreatedAt(sessionId);
 
         Slice<MessageGetResponse> responses = slice.map(
-                message -> MessageGetResponse.from(message.getId(), message.getContent())
+                message -> MessageGetResponse.from(message.getId(), message.getContent(), message.getRole())
         );
 
         return SliceResponse.from(responses);
