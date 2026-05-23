@@ -10,6 +10,7 @@ import com.example.ask_hub.team.domain.dto.response.TeamDownloadResponse;
 import com.example.ask_hub.team.domain.dto.response.TeamGetResponse;
 import com.example.ask_hub.user.domain.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/teams")
 @RequiredArgsConstructor
+@Tag(name = "프로젝트 팀 도메인")
 public class TeamController {
 
     private final TeamService teamService;

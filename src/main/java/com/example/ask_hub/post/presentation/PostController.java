@@ -4,13 +4,12 @@ import com.example.ask_hub.global.domain.CommonResponse;
 import com.example.ask_hub.global.domain.SliceResponse;
 import com.example.ask_hub.post.application.PostService;
 import com.example.ask_hub.post.domain.dto.request.PostCreateRequest;
-import com.example.ask_hub.post.domain.dto.response.PostCategoryResponse;
 import com.example.ask_hub.post.domain.dto.response.PostDetailResponse;
 import com.example.ask_hub.post.domain.dto.response.PostGetResponse;
-import com.example.ask_hub.post.domain.dto.response.PostSearchResponse;
 import com.example.ask_hub.user.domain.entity.User;
 import com.example.ask_hub.user.domain.enums.Position;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
+@Tag(name = "게시글 도메인")
 public class PostController {
 
     private final PostService postService;
@@ -42,7 +42,7 @@ public class PostController {
     }
 
     @GetMapping
-    @Operation(summary = "전체 게시글 목록 조회")
+    @Operation(summary = "전체 게시글 목록 조회(null 값은 익명을 뜻합니다)")
     public ResponseEntity<CommonResponse<SliceResponse<PostGetResponse>>> getList(
             @AuthenticationPrincipal User user,
             @PageableDefault Pageable pageable
@@ -89,7 +89,7 @@ public class PostController {
     }
 
     @GetMapping("/category")
-    @Operation(summary = "개발직군별 게시글 목록 조회(현재는 게시글 당 한 개의 카테고리, 그래서 단일 카테고리 별 조회)")
+    @Operation(summary = "개발 직군 별 게시글 목록 조회(단일 카테고리 별 조회)")
     public ResponseEntity<CommonResponse<SliceResponse<PostGetResponse>>> category(
             @RequestParam Position category, // 일단은 단일로
             @AuthenticationPrincipal User user,

@@ -9,6 +9,7 @@ import com.example.ask_hub.team.domain.dto.response.MessageGetResponse;
 import com.example.ask_hub.team.domain.dto.response.SessionGetResponse;
 import com.example.ask_hub.user.domain.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/sessions")
 @RequiredArgsConstructor
+@Tag(name = "세션 도메인")
 @Slf4j
 public class SessionController {
 

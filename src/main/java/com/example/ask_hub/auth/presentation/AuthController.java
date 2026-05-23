@@ -8,6 +8,7 @@ import com.example.ask_hub.global.domain.CommonResponse;
 import com.example.ask_hub.user.domain.dto.request.UserEmailRequest;
 import com.example.ask_hub.user.domain.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "사용자 인증 도메인")
 @RequiredArgsConstructor
 public class AuthController {
 
