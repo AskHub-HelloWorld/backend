@@ -97,10 +97,6 @@ public class TeamService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_FOUND));
 
         List<Convention> conventionList = conventionRepository.findAllByTeamId(teamId);
-        List<Long> conventionIds= new ArrayList<>();
-        for (Convention convention : conventionList) {
-            conventionIds.add(convention.getId());
-        }
 
         List<Session> sessionList = sessionRepository.findAllByTeamId(teamId);
         List<String> userNameList = new ArrayList<>();
@@ -108,7 +104,7 @@ public class TeamService {
             userNameList.add(session.getUser().getName());
         }
 
-        return TeamGetResponse.from(team, conventionIds, userNameList, team.getUser().getName());
+        return TeamGetResponse.from(team, conventionList, userNameList, team.getUser().getName());
     }
 
     public void addConvention(List<MultipartFile> files, Long teamId, Long userId) {
